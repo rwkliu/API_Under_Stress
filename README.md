@@ -10,7 +10,7 @@ This web application uses the following technologies:
 - Nginx
 
 # Architecture
-![alt text](image-1.png)
+![alt text](./images/image-1.png)
 
 # Load Testing and Performance Measurement
 Gatling will be used stress test this API and measure its performance.
