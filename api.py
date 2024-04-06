@@ -1,0 +1,104 @@
+#SQL functions:
+#db.cursor() - points to the location within the db
+#db.commit() - commits the changes to the db
+#db.rollback() - rolls back the changes to the db
+#cursor.execute(sql, values) - executes the sql command and adds values
+#cursor.fetchall() - fetches all the rows from the table
+#cursor.fetchone() - fetches the first row from the table
+#cursor.close() - closes connection to the db
+
+from flask import Flask, request, jsonify
+import mysql.connector
+import uuid
+
+app = Flask(__name__)
+
+#have issues connecting to database:
+#mysql.connector.errors.InterfaceError: 2003: Can't connect to MySQL server on '%-.100s:%u' (%s) (Warning: %u format: a real number is required, not str)
+
+db = mysql.connector.connect(
+    host="localhost",
+    user="username",
+    password="password123",
+    database="warriors_db"
+)
+
+@app.route('/warrior', methods=['POST'])
+def create_warrior():
+    data = request.json
+    id = str(uuid.uuid4())
+    name = data.get('name')
+    dob = data.get('dob')
+    fight_skills = data.get('fight_skills')
+
+    cursor = db.cursor() 
+    sql = "INSERT INTO warriors (id, name, dob, fight_skills) VALUES (%s, %s, %s, %s)"
+    values = (id, name, dob, str(fight_skills))
+    
+    try:
+        cursor.execute(sql, values)
+        db.commit()
+        return jsonify({'message': 'Warrior created successfully', 'id': id}), 201
+    except Exception as e:
+        print("Error creating warrior:", e)
+        db.rollback()
+        return jsonify({'message': 'Internal Server Error'}), 500
+    finally:
+        cursor.close() 
+
+@app.route('/warrior/<id>', methods=['GET'])
+def get_warrior(id):
+    cursor = db.cursor()
+    sql = "SELECT * FROM warriors WHERE id = %s"
+    val = (id)
+
+    try:
+        cursor.execute(sql, val)
+        result = cursor.fetchone()
+        if result:
+            return jsonify(result), 200
+        else:
+            return jsonify({'message': 'Warrior not found'}), 404
+    except Exception as e:
+        print("Error retrieving warrior:", e)
+        return jsonify({'message': 'Internal Server Error'}), 500
+    finally:
+        cursor.close()
+
+@app.route('/warrior', methods=['GET'])
+def search_warriors():
+    search_term = request.args.get('t')
+    if not search_term:
+        return jsonify({'message': 'Bad Request'}), 400
+
+    cursor = db.cursor()
+    sql = "SELECT * FROM warriors WHERE name LIKE %s LIMIT 50"
+    val = ('%' + search_term + '%',)
+
+    try:
+        cursor.execute(sql, val)
+        result = cursor.fetchall()
+        return jsonify(result), 200
+    except Exception as e:
+        print("Error searching warriors:", e)
+        return jsonify({'message': 'Internal Server Error'}), 500
+    finally:
+        cursor.close()
+
+@app.route('/counting-warriors', methods=['GET'])
+def count_warriors():
+    cursor = db.cursor()
+    sql = "SELECT COUNT(*) FROM warriors"
+
+    try:
+        cursor.execute(sql)
+        result = cursor.fetchone()[0]
+        return jsonify({'count': result}), 200
+    except Exception as e:
+        print("Error counting warriors:", e)
+        return jsonify({'message': 'Internal Server Error'}), 500
+    finally:
+        cursor.close()
+
+if __name__ == '__main__':
+    app.run(debug=True)
