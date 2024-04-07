@@ -13,8 +13,6 @@ import uuid
 
 app = Flask(__name__)
 
-# have issues connecting to database:
-# mysql.connector.errors.InterfaceError: 2003: Can't connect to MySQL server on '%-.100s:%u' (%s) (Warning: %u format: a real number is required, not str)
 
 db = mysql.connector.connect(
     host="localhost", user="username", password="password123", database="warriors_db"
@@ -49,7 +47,7 @@ def create_warrior():
 def get_warrior(id):
     cursor = db.cursor()
     sql = "SELECT * FROM warriors WHERE id = %s"
-    val = id
+    val = (id,)
 
     try:
         cursor.execute(sql, val)
