@@ -1,0 +1,25 @@
+version: "2"
+services:
+  db:
+    image: mysql:latest
+    # ports:
+    #   - "32000:3306"
+    expose:
+      - 3306
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+    volumes:
+      - ./db/warrior.sql:/docker-entrypoint-initdb.d/warrior.sql
+      - db_data:/var/lib/mysql
+
+  app:
+    build: ./app
+    links:
+      - db
+    ports:
+      - "5000:5000"
+    depends_on:
+      - db
+
+volumes:
+  db_data:

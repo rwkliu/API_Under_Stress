@@ -14,13 +14,14 @@ import uuid
 app = Flask(__name__)
 
 
-db = mysql.connector.connect(
-    host="localhost", user="username", password="password123", database="warriors_db"
-)
-
-
 @app.route("/warrior", methods=["POST"])
 def create_warrior():
+    db = mysql.connector.connect(
+        host="db",
+        user="root",
+        password="root",
+        database="warriors_db",
+    )
     data = request.json
     id = str(uuid.uuid4())
     name = data.get("name")
@@ -45,6 +46,12 @@ def create_warrior():
 
 @app.route("/warrior/<id>", methods=["GET"])
 def get_warrior(id):
+    db = mysql.connector.connect(
+        host="db",
+        user="root",
+        password="root",
+        database="warriors_db",
+    )
     cursor = db.cursor()
     sql = "SELECT * FROM warriors WHERE id = %s"
     val = (id,)
@@ -65,6 +72,12 @@ def get_warrior(id):
 
 @app.route("/warrior", methods=["GET"])
 def search_warriors():
+    db = mysql.connector.connect(
+        host="db",
+        user="root",
+        password="root",
+        database="warriors_db",
+    )
     search_term = request.args.get("t")
     if not search_term:
         return jsonify({"message": "Bad Request"}), 400
@@ -86,6 +99,12 @@ def search_warriors():
 
 @app.route("/counting-warriors", methods=["GET"])
 def count_warriors():
+    db = mysql.connector.connect(
+        host="db",
+        user="root",
+        password="root",
+        database="warriors_db",
+    )
     cursor = db.cursor()
     sql = "SELECT COUNT(*) FROM warriors"
 
@@ -101,4 +120,4 @@ def count_warriors():
 
 
 if __name__ == "__main__":
-    app.run(debug=True)
+    app.run(host="0.0.0.0", debug=True)

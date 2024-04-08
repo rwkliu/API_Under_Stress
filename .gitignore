@@ -1,4 +1,6 @@
 env1/*
 env2/*
+data/*
 .flaskenv
 __pycache__
+.DS_Store
