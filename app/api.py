@@ -5,15 +5,20 @@ import uuid
 app = Flask(__name__)
 
 
-# POST request that saves a new warrior entry into the database
-@app.route("/warrior", methods=["POST"])
-def create_warrior():
+def connect_to_db():
     db = mysql.connector.connect(
         host="db",
         user="root",
         password="root",
         database="warriors_db",
     )
+    return db
+
+
+# POST request that saves a new warrior entry into the database
+@app.route("/warrior", methods=["POST"])
+def create_warrior():
+    db = connect_to_db()
     data = request.json
     id = str(uuid.uuid4())
     name = data.get("name")
@@ -39,12 +44,7 @@ def create_warrior():
 # GET request that searches the database for entries that matches the given id
 @app.route("/warrior/<id>", methods=["GET"])
 def get_warrior(id):
-    db = mysql.connector.connect(
-        host="db",
-        user="root",
-        password="root",
-        database="warriors_db",
-    )
+    db = connect_to_db()
     cursor = db.cursor()
     sql = "SELECT * FROM warriors WHERE id = %s"
     val = (id,)
@@ -66,12 +66,7 @@ def get_warrior(id):
 # GET request that searches the databases for entries that matches the given name
 @app.route("/warrior", methods=["GET"])
 def search_warriors():
-    db = mysql.connector.connect(
-        host="db",
-        user="root",
-        password="root",
-        database="warriors_db",
-    )
+    db = connect_to_db()
     search_term = request.args.get("t")
     if not search_term:
         return jsonify({"message": "Bad Request"}), 400
@@ -94,12 +89,7 @@ def search_warriors():
 # GET request that returns the number of warriors
 @app.route("/counting-warriors", methods=["GET"])
 def count_warriors():
-    db = mysql.connector.connect(
-        host="db",
-        user="root",
-        password="root",
-        database="warriors_db",
-    )
+    db = connect_to_db()
     cursor = db.cursor()
     sql = "SELECT COUNT(*) FROM warriors"
 
