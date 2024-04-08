@@ -2,8 +2,6 @@ version: "2"
 services:
   db:
     image: mysql:latest
-    # ports:
-    #   - "32000:3306"
     expose:
       - 3306
     environment:

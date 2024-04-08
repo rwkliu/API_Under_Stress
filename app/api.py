@@ -1,12 +1,3 @@
-# SQL functions:
-# db.cursor() - points to the location within the db
-# db.commit() - commits the changes to the db
-# db.rollback() - rolls back the changes to the db
-# cursor.execute(sql, values) - executes the sql command and adds values
-# cursor.fetchall() - fetches all the rows from the table
-# cursor.fetchone() - fetches the first row from the table
-# cursor.close() - closes connection to the db
-
 from flask import Flask, request, jsonify
 import mysql.connector
 import uuid
@@ -14,6 +5,7 @@ import uuid
 app = Flask(__name__)
 
 
+# POST request that saves a new warrior entry into the database
 @app.route("/warrior", methods=["POST"])
 def create_warrior():
     db = mysql.connector.connect(
@@ -44,6 +36,7 @@ def create_warrior():
         cursor.close()
 
 
+# GET request that searches the database for entries that matches the given id
 @app.route("/warrior/<id>", methods=["GET"])
 def get_warrior(id):
     db = mysql.connector.connect(
@@ -70,6 +63,7 @@ def get_warrior(id):
         cursor.close()
 
 
+# GET request that searches the databases for entries that matches the given name
 @app.route("/warrior", methods=["GET"])
 def search_warriors():
     db = mysql.connector.connect(
@@ -97,6 +91,7 @@ def search_warriors():
         cursor.close()
 
 
+# GET request that returns the number of warriors
 @app.route("/counting-warriors", methods=["GET"])
 def count_warriors():
     db = mysql.connector.connect(
