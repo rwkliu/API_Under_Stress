@@ -15,6 +15,12 @@ def connect_to_db():
     return db
 
 
+@app.route("/")
+def default():
+    welcome_msg = "Welcome to API Under Stress!"
+    return welcome_msg
+
+
 # POST request that saves a new warrior entry into the database
 @app.route("/warrior", methods=["POST"])
 def create_warrior():
