@@ -9,11 +9,13 @@ services:
     volumes:
       - ./db/warrior.sql:/docker-entrypoint-initdb.d/warrior.sql
       - db_data:/var/lib/mysql
+    networks:
+      - app-to-db
 
   app_1:
     build: ./app
-    links:
-      - db
+    networks:
+      - app-to-db
     ports:
       - "5000:5000"
     depends_on:
@@ -21,12 +23,15 @@ services:
 
   app_2:
     build: ./app
-    links:
-      - db
+    networks:
+      - app-to-db
     ports:
       - "5001:5000"
     depends_on:
       - db
+
+networks:
+  app-to-db:
 
 volumes:
   db_data:
