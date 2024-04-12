@@ -14,21 +14,31 @@ services:
 
   app_1:
     build: ./app
-    networks:
-      - app-to-db
-    ports:
-      - "5000:5000"
+    environment:
+      - PORT=5000
     depends_on:
       - db
+    networks:
+      - app-to-db
 
   app_2:
     build: ./app
     networks:
       - app-to-db
-    ports:
-      - "5001:5000"
+    environment:
+      - PORT=5000
     depends_on:
       - db
+  
+  nginx:
+    build: ./nginx
+    ports:
+      - "80:80"
+    networks:
+      - app-to-db
+    depends_on:
+      - app_1
+      - app_2
 
 networks:
   app-to-db:
