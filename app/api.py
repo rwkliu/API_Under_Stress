@@ -52,7 +52,7 @@ def create_warrior():
 def get_warrior(id):
     db = connect_to_db()
     cursor = db.cursor()
-    sql = "SELECT * FROM warriors WHERE id = %s"
+    sql = "SELECT * FROM warriors WHERE id = %s LIMIT 50"
     val = (id,)
 
     try:
