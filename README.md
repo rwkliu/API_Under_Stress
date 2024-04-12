@@ -13,4 +13,4 @@ This web application uses the following technologies:
 ![alt text](./images/image-1.png)
 
 # Load Testing and Performance Measurement
-Gatling will be used stress test this API and measure its performance.
+Gatling will be used to stress test this API and measure its performance. The Gatling simulation scripts used to test this API are found [here](https://github.com/rwkliu/Warrior-API-Gatling).
