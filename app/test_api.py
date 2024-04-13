@@ -82,3 +82,29 @@ def test_count_warriors(client):
     total_count = response_data['count']
     assert isinstance(total_count, int)
     assert total_count >= 0
+
+def test_invalid_input_data(client):
+    data = {
+        "dob": "0000-00-00",
+        "fight_skills": ["kungfu", "taekwondo"]
+    }
+    response = client.post('/warrior', data=json.dumps(data), content_type='application/json')
+    assert response.status_code == 400
+
+
+def test_retrieve_non_existing_warrior(client):
+    non_existing_id = 'nonExistingId'
+    response = client.get(f'/warrior/{non_existing_id}')
+    assert response.status_code == 404
+
+
+def test_search_non_existing_warrior(client):
+    search_name = "NonExistingName"
+    response = client.get(f'/warrior?t={search_name}')
+    assert response.status_code == 200
+    assert len(response.json) == 0
+
+
+def test_empty_request_parameter(client):
+    response = client.get('/warrior')
+    assert response.status_code == 400

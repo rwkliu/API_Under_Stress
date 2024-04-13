@@ -26,6 +26,11 @@ def default():
 def create_warrior():
     db = connect_to_db()
     data = request.json
+
+    # Perform input validation
+    if "name" not in data or "dob" not in data or "fight_skills" not in data:
+        return jsonify({"message": "Bad Request - Missing required fields"}), 400
+
     id = str(uuid.uuid4())
     name = data.get("name")
     dob = data.get("dob")
