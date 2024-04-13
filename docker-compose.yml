@@ -9,15 +9,31 @@ services:
     volumes:
       - ./db/warrior.sql:/docker-entrypoint-initdb.d/warrior.sql
       - db_data:/var/lib/mysql
+    networks:
+      - loadbalancing
 
-  app:
+  app_1:
     build: ./app
-    links:
-      - db
-    ports:
-      - "5000:5000"
+    environment:
+      - PORT=5000
     depends_on:
       - db
+    deploy:
+      replicas: 2  
+    networks:
+      - loadbalancing
+
+  nginx:
+    build: ./nginx
+    ports:
+      - "80:80"
+    networks:
+      - loadbalancing
+    depends_on:
+      - app_1
+
+networks:
+  loadbalancing:
 
 volumes:
   db_data:
