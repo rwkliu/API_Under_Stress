@@ -11,8 +11,8 @@ def client():
 
 def test_default(client):
     response = client.get('/') 
-    # print(response.status_code)
-    # print(response.data)
+    print(response.status_code)
+    print(response.data)
     assert response.status_code == 200 
     assert response.data.decode('utf-8') == "Welcome to API Under Stress!" 
 
@@ -21,7 +21,7 @@ def test_default(client):
 def test_create_warrior(client):
     data = {
         "id": None,
-        "name": "Red Sky",
+        "name": "Vanilla Sky",
         "dob": "1985-02-14",
         "fight_skills": ["kungfu", "taekwondo"]
     }
@@ -29,7 +29,7 @@ def test_create_warrior(client):
     assert response.status_code == 201
 
     response_data = response.json
-    print("Response data:", response_data)
+    print("Response data post request:", response_data)
 
     assert 'id' in response_data
     data['id'] = response_data['id']
@@ -44,7 +44,7 @@ def test_get_warrior(client):
     # Create a warrior and get its id
     data = {
         "id": None,
-        "name": "Vast Sky",
+        "name": "Sunny Sky",
         "dob": "1985-02-14",
         "fight_skills": ["kungfu", "taekwondo"]
     }
@@ -54,8 +54,31 @@ def test_get_warrior(client):
 
     # Retrieve the warrior by id
     getresponse = client.get(f'/warrior/{warrior_id}')
-    print("getresponse json():", getresponse.json) # it is returned as a list
+    print("getresponse.json get request:", getresponse.json) # it is returned as a list
     assert getresponse.status_code == 200
 
     warrior_data = getresponse.json
     assert warrior_data[0] == warrior_id
+
+
+def test_search_warriors(client):
+    search_name = "Vanilla Sky"
+    response = client.get(f'/warrior?t={search_name}')
+    assert response.status_code == 200
+
+    warriors = response.json
+    assert isinstance(warriors,list)
+    assert len(warriors) > 0
+    for warrior in warriors:
+        assert search_name in warrior[1]
+
+
+def test_count_warriors(client):
+    response = client.get('/counting-warriors')
+    assert response.status_code == 200
+
+    response_data = response.json
+    assert 'count' in response_data
+    total_count = response_data['count']
+    assert isinstance(total_count, int)
+    assert total_count >= 0
