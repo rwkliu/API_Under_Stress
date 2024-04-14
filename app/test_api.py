@@ -1,6 +1,7 @@
 import pytest
 from api import app, connect_to_db
-import json 
+import json
+import uuid 
 
 @pytest.fixture
 def client():
@@ -20,8 +21,7 @@ def test_default(client):
 
 def test_create_warrior(client):
     data = {
-        "id": None,
-        "name": "Vanilla Sky",
+        "name": "Robin Ranjit",
         "dob": "1985-02-14",
         "fight_skills": ["kungfu", "taekwondo"]
     }
@@ -29,32 +29,33 @@ def test_create_warrior(client):
     assert response.status_code == 201
 
     response_data = response.json
-    print("Response data post request:", response_data)
+    print("Debug-Response data post request:", response_data)
 
     assert 'id' in response_data
-    data['id'] = response_data['id']
-    assert data['id'] is not None
-
+    print("Debug-response_data_uuid: ", response_data['id'])
+   
     assert 'message' in response_data
     assert response_data['message'] == 'Warrior created successfully'
 
 
 
 def test_get_warrior(client):
-    # Create a warrior and get its id
+    # Create a warrior and get its uuid
     data = {
-        "id": None,
-        "name": "Sunny Sky",
+        "name": "Umesh Raj",
         "dob": "1985-02-14",
         "fight_skills": ["kungfu", "taekwondo"]
     }
     response = client.post('/warrior', data=json.dumps(data), content_type='application/json')
-    response_data = response.json
-    warrior_id = response_data['id'] # accessing id from dictionary
+    response_data = response.json 
+    print("Debug-response_data from test_get_warrior: ", response_data) # uuid
+
+    warrior_id = response_data['id']   
 
     # Retrieve the warrior by id
     getresponse = client.get(f'/warrior/{warrior_id}')
-    print("getresponse.json get request:", getresponse.json) # it is returned as a list
+    print("Debug-getresponse: ", getresponse)
+    print("Debug-getresponse.json get request:", getresponse.json) # it is returned as a list
     assert getresponse.status_code == 200
 
     warrior_data = getresponse.json
@@ -62,7 +63,7 @@ def test_get_warrior(client):
 
 
 def test_search_warriors(client):
-    search_name = "Vanilla Sky"
+    search_name = "Umesh Raj"
     response = client.get(f'/warrior?t={search_name}')
     assert response.status_code == 200
 
