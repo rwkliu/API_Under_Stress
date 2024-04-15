@@ -45,7 +45,7 @@ jobs:
 
     - name: Run pytest on first app_1 container
       run: |
-        docker exec "${{ env.app_1_1_id }}" pytest
+        docker exec ${{ env.app_1_1_id }} pytest
         
     - name: Run pytest on second app_1 container
       run: |
