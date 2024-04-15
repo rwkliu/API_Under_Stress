@@ -27,15 +27,18 @@ jobs:
     - name: Install dependencies
       run: |
         python -m pip install --upgrade pip
-        pip install -r .github/workflows/requirements.txt
     - name: Build and Deploy Docker container
       run: |
         docker-compose up -d --build
-    - name: Test with pytest
+    - name: Run pytest on app_1-1 container
       run: |
-        app_1-1_id=$(docker ps --filter "name=app_1-1" | awk 'NR>1 {print $1}')
-        app_1-2_id=$(docker ps --filter "name=app_1-2" | awk 'NR>1 {print $1}')
         docker exec $app_1-1_id pytest
+      env:
+        app_1-1_id: $(docker ps --filter "name=app_1-1" | awk 'NR>1 {print $1}')
+    - name: Run pytest on app_1-2 container
+      run: |
         docker exec $app_1-2_id pytest
+      env:
+        app_1-2_id: $(docker ps --filter "name=app_1-2" | awk 'NR>1 {print $1}')
 
         
