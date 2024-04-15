@@ -33,12 +33,10 @@ jobs:
 
     - name: Run pytest on first app_1 container
       run: |
-        app_1_1_id=$(docker ps --filter "name=app_1-1" | awk 'NR>1 {print $1}')
-        docker exec $app_1_1_id pytest
+        docker exec $(docker ps --filter "name=app_1-1" | awk 'NR>1 {print $1}') pytest
         
     - name: Run pytest on second app_1 container
       run: |
-        app_1_2_id=$(docker ps --filter "name=app_1-2" | awk 'NR>1 {print $1}')
-        docker exec $app_1_2_id pytest
+        docker exec $(docker ps --filter "name=app_1-2" | awk 'NR>1 {print $1}') pytest
 
         
