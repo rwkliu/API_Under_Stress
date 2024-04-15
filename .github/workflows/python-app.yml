@@ -30,15 +30,15 @@ jobs:
     - name: Build and Deploy Docker container
       run: |
         docker-compose up -d --build
-    - name: Run pytest on app_1-1 container
+    - name: Run pytest on first app_1 container
       run: |
-        docker exec $app_1-1_id pytest
+        docker exec $app_1_1_id pytest
       env:
-        app_1-1_id: $(docker ps --filter "name=app_1-1" | awk 'NR>1 {print $1}')
-    - name: Run pytest on app_1-2 container
+        app_1_1_id: $(docker ps --filter "name=app_1-1" | awk 'NR>1 {print $1}')
+    - name: Run pytest on second app_1 container
       run: |
-        docker exec $app_1-2_id pytest
+        docker exec $app_1_2_id pytest
       env:
-        app_1-2_id: $(docker ps --filter "name=app_1-2" | awk 'NR>1 {print $1}')
+        app_1_2_id: $(docker ps --filter "name=app_1-2" | awk 'NR>1 {print $1}')
 
         
