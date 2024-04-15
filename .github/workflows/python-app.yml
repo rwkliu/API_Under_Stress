@@ -31,6 +31,10 @@ jobs:
       run: |
         docker-compose up -d --build
 
+    - name: Show containers
+      run: |
+        docker container ps
+
     - name: Get app_1 container
       run: |
         echo "app_1_1_id=$(docker ps --filter "name=app_1-1" | awk 'NR>1 {print $1}')" >> $GITHUB_ENV
@@ -41,10 +45,10 @@ jobs:
 
     - name: Run pytest on first app_1 container
       run: |
-        docker exec ${{ env.app_1_1_id }} pytest
+        docker exec "${{ env.app_1_1_id }}" pytest
         
     - name: Run pytest on second app_1 container
       run: |
-        docker exec ${{ env.app_1_2_id }} pytest
+        docker exec "${{ env.app_1_2_id }}" pytest
 
         
