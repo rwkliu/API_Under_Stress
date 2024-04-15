@@ -35,12 +35,16 @@ jobs:
       run: |
         echo "app_1_1_id=$(docker ps --filter "name=app_1-1" | awk 'NR>1 {print $1}')" >> $GITHUB_ENV
 
+    - name: Get app_2 container
+      run: |
+        echo "app_1_2_id=$(docker ps --filter "name=app_1-2" | awk 'NR>1 {print $1}')" >> $GITHUB_ENV
+
     - name: Run pytest on first app_1 container
       run: |
-        docker exec "${{ env.app_1_1_id }}" pytest
+        docker exec ${{ env.app_1_1_id }} pytest
         
     - name: Run pytest on second app_1 container
       run: |
-        docker exec $(docker ps --filter "name=app_1-2" | awk 'NR>1 {print $1}') pytest
+        docker exec ${{ env.app_1_2_id }} pytest
 
         
