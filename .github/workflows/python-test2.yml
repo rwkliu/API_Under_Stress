@@ -1,0 +1,60 @@
+# This workflow will install Python dependencies, run tests and lint with a single version of Python 
+# It builds and deploys the Docker container using Docker compose with build instructions and deployment setting configuration.
+# For more information see: https://docs.github.com/en/actions/automating-builds-and-tests/building-and-testing-python
+
+name: Python Warrior API
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v3
+    - name: Set up Python 3.12
+      uses: actions/setup-python@v3
+      with:
+        python-version: "3.12"
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install -r .github/workflows/requirements.txt
+        
+    - name: Build and Deploy Docker container
+      run: |
+        docker-compose up -d --build
+
+    - name: Show containers
+      run: |
+        docker container ps
+
+    - name: Run Counting Warriors
+      run: |
+        curl db:3306/counting-warriors
+
+    - name: Get app_1 container
+      run: |
+        echo "app_1_1_id=$(docker ps --filter "name=api_under_stress_app_1_1" | awk 'NR>1 {print $1}')" >> $GITHUB_ENV
+
+    - name: Get app_2 container
+      run: |
+        echo "app_1_2_id=$(docker ps --filter "name=api_under_stress_app_1_2" | awk 'NR>1 {print $1}')" >> $GITHUB_ENV
+
+    - name: Run pytest on first app_1 container
+      run: |
+        docker exec ${{ env.app_1_1_id }} pytest
+        
+    - name: Run pytest on second app_1 container
+      run: |
+        docker exec ${{ env.app_1_2_id }} pytest
+
+        
