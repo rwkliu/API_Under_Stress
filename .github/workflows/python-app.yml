@@ -39,7 +39,7 @@ jobs:
 
     - name: Run Counting Warriors
       run: |
-        curl http://127.0.0.1:3306/counting-warriors
+        curl http://127.0.0.1:80/counting-warriors
 
     - name: Get app_1 container
       run: |
