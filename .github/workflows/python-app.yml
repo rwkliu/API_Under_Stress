@@ -43,11 +43,11 @@ jobs:
 
     - name: Get app_1 container
       run: |
-        echo "app_1_1_id=$(docker ps --filter "name=Api_Under_Stress_app_1_1" | awk 'NR>1 {print $1}')" >> $GITHUB_ENV
+        echo "app_1_1_id=$(docker ps --filter "name=api_under_stress_app_1_1" | awk 'NR>1 {print $1}')" >> $GITHUB_ENV
 
     - name: Get app_2 container
       run: |
-        echo "app_1_2_id=$(docker ps --filter "name=Api_Under_Stress_app_1_2" | awk 'NR>1 {print $1}')" >> $GITHUB_ENV
+        echo "app_1_2_id=$(docker ps --filter "name=pi_under_stress_app_1_2" | awk 'NR>1 {print $1}')" >> $GITHUB_ENV
 
     - name: Run pytest on first app_1 container
       run: |
