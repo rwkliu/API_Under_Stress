@@ -37,10 +37,6 @@ jobs:
       run: |
         docker container ps
 
-    - name: Run Counting Warriors
-      run: |
-        curl http://127.0.0.1/counting-warriors
-
     - name: Get app_1 container
       run: |
         echo "app_1_1_id=$(docker ps --filter "name=api_under_stress_app_1_1" | awk 'NR>1 {print $1}')" >> $GITHUB_ENV
