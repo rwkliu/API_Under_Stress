@@ -6,7 +6,7 @@ name: Python Warrior API
 
 on:
   push:
-    branches: [ "main" ]
+    branches: [ "praria-patch-3" ]
   pull_request:
     branches: [ "main" ]
 
