@@ -17,6 +17,7 @@ services:
       - PORT=5000
     depends_on:
       - db
+      - redis
     deploy:
       replicas: 2
     networks:
@@ -30,6 +31,16 @@ services:
       - loadbalancing
     depends_on:
       - app_1
+
+  redis:
+    image: redis:latest
+    restart: always
+    ports:
+      - "6379:6379"
+    volumes:
+      - ./data:/data
+    networks:
+      - loadbalancing
 
 networks:
   loadbalancing:
