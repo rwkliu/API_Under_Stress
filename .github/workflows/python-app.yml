@@ -37,19 +37,23 @@ jobs:
       run: |
         docker container ps
 
+    - name: Run Counting Warriors
+      run: |
+        curl 127.0.0.1:80/counting-warriors
+
     - name: Get app_1 container
       run: |
-        echo "app_1_1_id=$(docker ps --filter "name=api_under_stress_app_1_1" | awk 'NR>1 {print $1}')" >> $GITHUB_ENV
+        echo "app_1_1_id=$(docker ps --filter "name=Api_Under_Stress_app_1_1" | awk 'NR>1 {print $1}')" >> $GITHUB_ENV
 
     - name: Get app_2 container
       run: |
-        echo "app_1_2_id=$(docker ps --filter "name=api_under_stress_app_1_2" | awk 'NR>1 {print $1}')" >> $GITHUB_ENV
+        echo "app_1_2_id=$(docker ps --filter "name=Api_Under_Stress_app_1_2" | awk 'NR>1 {print $1}')" >> $GITHUB_ENV
 
     - name: Run pytest on first app_1 container
       run: |
         docker exec ${{ env.app_1_1_id }} pytest
         
-    - name: Run pytest on second app_2 container
+    - name: Run pytest on second app_1 container
       run: |
         docker exec ${{ env.app_1_2_id }} pytest
 
