@@ -19,7 +19,7 @@ services:
     depends_on:
       - db
     deploy:
-      replicas: 2  
+      replicas: 2
     networks:
       - loadbalancing
 
