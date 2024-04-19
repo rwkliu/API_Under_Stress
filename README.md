@@ -8,6 +8,7 @@ This web application uses the following technologies:
 - Flask
 - MySQL
 - Nginx
+- Gunicorn
 
 # Architecture
 ![alt text](./images/image-1.png)
