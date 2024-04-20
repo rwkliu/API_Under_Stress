@@ -19,10 +19,6 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-
-    - name: Check MySQL Connectivity
-      run: telnet db 3306
-
     - uses: actions/checkout@v3
     - name: Set up Python 3.12
       uses: actions/setup-python@v3
@@ -52,6 +48,10 @@ jobs:
     - name: Get app_2 container
       run: |
         echo "app_1_2_id=$(docker ps --filter "name=pi_under_stress_app_1_2" | awk 'NR>1 {print $1}')" >> $GITHUB_ENV
+    
+
+    - name: Check MySQL Connectivity
+      run: telnet api_under_stress-db-1 3306
 
     - name: Run pytest on first app_1 container
       run: |

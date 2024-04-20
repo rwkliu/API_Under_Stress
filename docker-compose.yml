@@ -1,6 +1,7 @@
 version: "2"
 services:
   db:
+    container_name: api_under_stress-db-1
     image: mysql:latest
     expose:
       - 3306

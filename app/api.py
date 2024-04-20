@@ -7,7 +7,7 @@ app = Flask(__name__)
 
 def connect_to_db():
     db = mysql.connector.connect(
-        host="db",
+        host="api_under_stress-db-1",
         user="root",
         password="root",
         database="warriors_db",
