@@ -9,9 +9,10 @@ This web application uses the following technologies:
 - MySQL
 - Nginx
 - Gunicorn
+- Redis
 
 # Architecture
-![alt text](./images/image-1.png)
+![alt text](./images/image-2.jpg)
 
 # Load Testing and Performance Measurement
 Gatling will be used to stress test this API and measure its performance. The Gatling simulation scripts used to test this API are found [here](https://github.com/rwkliu/Warrior-API-Gatling).

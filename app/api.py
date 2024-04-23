@@ -1,8 +1,19 @@
 from flask import Flask, request, jsonify
+from flask_caching import Cache
 import mysql.connector
 import uuid
 
 app = Flask(__name__)
+
+# Configure the redis cache
+app.config["CACHE_TYPE"] = "RedisCache"
+app.config["CACHE_REDIS_HOST"] = "redis"
+app.config["CACHE_REDIS_PORT"] = 6379
+app.config["CACHE_REDIS_DB"] = 0
+
+# Set up the Cache instance and initialize the cache
+cache = Cache(app)
+cache.init_app(app)
 
 
 def connect_to_db():
@@ -54,6 +65,7 @@ def create_warrior():
 
 # GET request that searches the database for entries that matches the given id
 @app.route("/warrior/<id>", methods=["GET"])
+@cache.cached(timeout=60, key_prefix="warrior_id")
 def get_warrior(id):
     db = connect_to_db()
     cursor = db.cursor()
@@ -76,6 +88,7 @@ def get_warrior(id):
 
 # GET request that searches the databases for entries that matches the given name
 @app.route("/warrior", methods=["GET"])
+@cache.cached(timeout=60, key_prefix="warrior_att")
 def search_warriors():
     db = connect_to_db()
     search_term = request.args.get("t")
