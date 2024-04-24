@@ -86,9 +86,9 @@ def get_warrior(id):
         cursor.close()
 
 
-# GET request that searches the databases for entries that matches the given name
+# GET request that searches for entries that matches the given search term
 @app.route("/warrior", methods=["GET"])
-@cache.cached(timeout=60, key_prefix="warrior_att")
+@cache.cached(timeout=60)
 def search_warriors():
     db = connect_to_db()
     search_term = request.args.get("t")
