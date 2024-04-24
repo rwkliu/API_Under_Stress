@@ -65,7 +65,7 @@ def create_warrior():
 
 # GET request that searches the database for entries that matches the given id
 @app.route("/warrior/<id>", methods=["GET"])
-@cache.cached(timeout=60, key_prefix="warrior_id")
+@cache.cached(timeout=60)
 def get_warrior(id):
     db = connect_to_db()
     cursor = db.cursor()
