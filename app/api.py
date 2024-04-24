@@ -96,7 +96,7 @@ def search_warriors():
         return jsonify({"message": "Bad Request"}), 400
 
     cursor = db.cursor()
-    sql = "SELECT * FROM warriors WHERE name LIKE %s LIMIT 50"
+    sql = f"SELECT * FROM warriors WHERE {search_term} LIKE %s LIMIT 50"
     val = ("%" + search_term + "%",)
 
     try:
