@@ -5,6 +5,9 @@ import uuid
 
 app = Flask(__name__)
 
+# App config settings
+app.json.sort_keys = False
+
 # Configure the redis cache
 app.config["CACHE_TYPE"] = "RedisCache"
 app.config["CACHE_REDIS_HOST"] = "redis"
@@ -54,7 +57,18 @@ def create_warrior():
     try:
         cursor.execute(sql, values)
         db.commit()
-        return jsonify({"message": "Warrior created successfully", "id": id}), 201
+        return (
+            jsonify(
+                {
+                    "message": "Warrior created successfully",
+                    "id": id,
+                    "name": name,
+                    "dob": dob,
+                    "fight_skills": fight_skills,
+                }
+            ),
+            201,
+        )
     except Exception as e:
         print("Error creating warrior:", e)
         db.rollback()
