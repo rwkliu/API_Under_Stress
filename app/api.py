@@ -113,12 +113,17 @@ def get_warrior(id):
         cursor.close()
 
 
+def get_search_term():
+    search_term = request.args.get("t")
+    return search_term
+
+
 # GET request that searches for entries that matches the given search term
 @app.route("/warrior", methods=["GET"])
-@cache.cached(timeout=60)
+@cache.cached(timeout=60, make_cache_key=get_search_term)
 def search_warriors():
     db = connect_to_db()
-    search_term = request.args.get("t")
+    search_term = get_search_term()
     if not search_term:
         return jsonify({"message": "Bad Request"}), 400
 
