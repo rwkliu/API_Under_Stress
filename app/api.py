@@ -41,7 +41,7 @@ def create_warrior():
     db = connect_to_db()
     data = request.json
 
-    # Perform input validation
+    # Check name, dob, and fight_skills keys are in the request body
     if "name" not in data or "dob" not in data or "fight_skills" not in data:
         return jsonify({"message": "Bad Request - Missing required fields"}), 400
 
@@ -49,6 +49,19 @@ def create_warrior():
     name = data.get("name")
     dob = data.get("dob")
     fight_skills = data.get("fight_skills")
+
+    # Check for empty skills or more than 20 skills
+    if fight_skills == None:
+        return jsonify({"message": "Bad Request - fight_skills cannot be empty"}), 400
+    if len(fight_skills) > 20:
+        return (
+            jsonify(
+                {
+                    "message": "Bad Request - fight_skills cannot cannot have more than 20 skills"
+                }
+            ),
+            400,
+        )
 
     cursor = db.cursor()
     sql = "INSERT INTO warriors (id, name, dob, fight_skills) VALUES (%s, %s, %s, %s)"
