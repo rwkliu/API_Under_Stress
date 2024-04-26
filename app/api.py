@@ -62,6 +62,9 @@ def create_warrior():
             ),
             400,
         )
+    # Check for skills that are more than 250 characters
+    if any(len(fight_skill) > 250 for fight_skill in fight_skills):
+        return jsonify({"message": "Bad Request - a fight skill name is too long"}), 400
     # Check the name is more than 100 characters
     if len(name) > 100:
         return jsonify({"message": "Bad Request - name is too long"}), 400
