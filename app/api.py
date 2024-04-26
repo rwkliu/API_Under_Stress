@@ -62,6 +62,9 @@ def create_warrior():
             ),
             400,
         )
+    # Check the name is more than 100 characters
+    if len(name) > 100:
+        return jsonify({"message": "Bad Request - name is too long"}), 400
 
     cursor = db.cursor()
     sql = "INSERT INTO warriors (id, name, dob, fight_skills) VALUES (%s, %s, %s, %s)"
