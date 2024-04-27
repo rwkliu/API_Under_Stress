@@ -45,14 +45,17 @@ def create_warrior():
     if "name" not in data or "dob" not in data or "fight_skills" not in data:
         return jsonify({"message": "Bad Request - Missing required fields"}), 400
 
-    id = str(uuid.uuid4())
     name = data.get("name")
     dob = data.get("dob")
     fight_skills = data.get("fight_skills")
 
-    # Check for empty skills or more than 20 skills
+    # Check the name is more than 100 characters
+    if len(name) > 100:
+        return jsonify({"message": "Bad Request - name is too long"}), 400
+    # Check for empty skills
     if fight_skills == None:
         return jsonify({"message": "Bad Request - fight_skills cannot be empty"}), 400
+    # Check for more than 20 fight skills
     if len(fight_skills) > 20:
         return (
             jsonify(
@@ -66,16 +69,14 @@ def create_warrior():
     if any(len(fight_skill) > 250 for fight_skill in fight_skills):
         return jsonify({"message": "Bad Request - a fight skill name is too long"}), 400
     # Check for total sum of the fight skill character lengths doesn't exceed max length
-    max_skills_length = 5000
+    max_skills_length = 5019
     if sum([len(fight_skill) for fight_skill in fight_skills]) > max_skills_length:
         return jsonify({"message": "Bad Request - fight skills length exceeded"}), 400
-    # Check the name is more than 100 characters
-    if len(name) > 100:
-        return jsonify({"message": "Bad Request - name is too long"}), 400
 
+    fight_skills_list_string = ",".join(fight_skills)
     cursor = db.cursor()
-    sql = "INSERT INTO warriors (id, name, dob, fight_skills) VALUES (%s, %s, %s, %s)"
-    values = (id, name, dob, str(fight_skills))
+    sql = "INSERT INTO warriors (id, name, dob, fight_skills) VALUES (UUID_TO_BIN(UUID()), %s, %s, %s)"
+    values = (name, dob, fight_skills_list_string)
 
     try:
         cursor.execute(sql, values)
@@ -84,10 +85,7 @@ def create_warrior():
             jsonify(
                 {
                     "message": "Warrior created successfully",
-                    "id": id,
                     "name": name,
-                    "dob": dob,
-                    "fight_skills": fight_skills,
                 }
             ),
             201,
