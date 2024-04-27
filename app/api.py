@@ -45,6 +45,7 @@ def create_warrior():
     if "name" not in data or "dob" not in data or "fight_skills" not in data:
         return jsonify({"message": "Bad Request - Missing required fields"}), 400
 
+    id = str(uuid.uuid4())
     name = data.get("name")
     dob = data.get("dob")
     fight_skills = data.get("fight_skills")
@@ -75,8 +76,8 @@ def create_warrior():
 
     fight_skills_list_string = ",".join(fight_skills)
     cursor = db.cursor()
-    sql = "INSERT INTO warriors (id, name, dob, fight_skills) VALUES (UUID_TO_BIN(UUID()), %s, %s, %s)"
-    values = (name, dob, fight_skills_list_string)
+    sql = "INSERT INTO warriors (id, name, dob, fight_skills) VALUES (%s, %s, %s, %s)"
+    values = (id, name, dob, fight_skills_list_string)
 
     try:
         cursor.execute(sql, values)
