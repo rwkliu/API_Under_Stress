@@ -126,9 +126,13 @@ def get_search_term():
     return search_term
 
 
+def search_term_none():
+    return request.args.get("t") == None
+
+
 # GET request that searches for entries that matches the given search term
 @app.route("/warrior", methods=["GET"])
-@cache.cached(timeout=60, make_cache_key=get_search_term)
+@cache.cached(timeout=60, make_cache_key=get_search_term, unless=search_term_none)
 def search_warriors():
     db = connect_to_db()
     search_term = get_search_term()
