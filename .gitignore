@@ -5,3 +5,5 @@ data/*
 __pycache__
 .DS_Store
 .idea/*
+gatling_testing_v1/*
+dump.rdb
