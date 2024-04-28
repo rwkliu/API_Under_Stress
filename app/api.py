@@ -1,7 +1,7 @@
-from flask import Flask, request, jsonify
+from flask import Flask, request, jsonify, Response
 from flask_caching import Cache
 import mysql.connector
-import uuid
+import uuid, json
 
 app = Flask(__name__)
 
@@ -82,15 +82,13 @@ def create_warrior():
     try:
         cursor.execute(sql, values)
         db.commit()
-        return (
-            jsonify(
-                {
-                    "message": "Warrior created successfully",
-                    "name": name,
-                }
-            ),
-            201,
+        resp = Response(
+            response=json.dumps({"message": "Warrior created successfully"}),
+            status=201,
         )
+        resp.headers["location"] = "/" + name + "/" + id
+
+        return resp
     except Exception as e:
         print("Error creating warrior:", e)
         db.rollback()
