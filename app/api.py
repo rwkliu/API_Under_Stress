@@ -86,7 +86,7 @@ def create_warrior():
             response=json.dumps({"message": "Warrior created successfully"}),
             status=201,
         )
-        resp.headers["location"] = "/" + name + "/" + id
+        resp.headers["location"] = "/warrior/" + id
 
         return resp
     except Exception as e:
