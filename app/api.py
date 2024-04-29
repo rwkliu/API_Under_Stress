@@ -57,15 +57,18 @@ def create_warrior():
     if fight_skills == None:
         return jsonify({"message": "Bad Request - fight_skills cannot be empty"}), 400
     # Check for more than 20 fight skills
-    if len(fight_skills) > 20:
-        return (
-            jsonify(
-                {
-                    "message": "Bad Request - fight_skills cannot cannot have more than 20 skills"
-                }
-            ),
-            400,
-        )
+    try:
+        if len(fight_skills) > 20:
+            return (
+                jsonify(
+                    {
+                        "message": "Bad Request - fight_skills cannot cannot have more than 20 skills"
+                    }
+                ),
+                400,
+            )
+    except Exception:
+        return jsonify({"message": "fight skill is not a string"}), 400
     # Check for skills that are more than 250 characters
     if any(len(fight_skill) > 250 for fight_skill in fight_skills):
         return jsonify({"message": "Bad Request - a fight skill name is too long"}), 400
