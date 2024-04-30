@@ -28,6 +28,24 @@ def connect_to_db():
     )
     return db
 
+def is_valid_skill(skill):
+    valid_skills = ["BJJ", "Karate", "Judo", "KungFu", "Capoeira", "Boxing", "Taekwondo", "Aikido", "KravMaga",
+                    "MuayThai", "KickBoxing", "Pankration", "Wrestling", "Sambo", "Savate", "Sumo", "Kendo",
+                    "Hapkido", "LutaLivre", "WingChu", "Ninjutsu", "Fencing", "ArmWrestling", "SuckerPunch",
+                    "44Magnum"]
+    return skill in valid_skills
+
+
+def validate_fight_skills(fight_skills):
+    if not all(is_valid_skill(skill) for skill in fight_skills):
+        return "Bad Request - Invalid fight skill"
+    if not fight_skills:
+        return "Bad Request - Fight skills cannot be empty"
+    if len(fight_skills) > 20:
+        return "Bad Request - Fight skills cannot have more than 20 skills"
+    if any(len(skill) > 250 for skill in fight_skills):
+        return "Bad Request - A fight skill name is too long"
+    return None
 
 @app.route("/")
 def default():
@@ -45,14 +63,21 @@ def create_warrior():
     if "name" not in data or "dob" not in data or "fight_skills" not in data:
         return jsonify({"message": "Bad Request - Missing required fields"}), 400
 
+    # Validate fight_skills
+    validation_error = validate_fight_skills(data['fight_skills'])
+    if validation_error:
+        return jsonify({"message": validation_error}), 400 
+
+    
+    # Check the name is more than 100 characters
+    if len(data['name']) > 100:
+        return jsonify({"message": "Bad Request - name is too long"}), 400
+    
     id = str(uuid.uuid4())
     name = data.get("name")
     dob = data.get("dob")
     fight_skills = data.get("fight_skills")
 
-    # Check the name is more than 100 characters
-    if len(name) > 100:
-        return jsonify({"message": "Bad Request - name is too long"}), 400
     # Check for empty skills
     if fight_skills == None:
         return jsonify({"message": "Bad Request - fight_skills cannot be empty"}), 400

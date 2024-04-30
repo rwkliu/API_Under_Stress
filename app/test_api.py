@@ -108,4 +108,16 @@ def test_search_non_existing_warrior(client):
 
 def test_empty_request_parameter(client):
     response = client.get('/warrior')
+    assert response.status_code == 400 
+
+def test_invalid_fight_skills(client):
+    data = {
+        "name": "Test Warrior",
+        "dob": "1990-01-01",
+        "fight_skills": ["InvalidSkill", "AnotherInvalidSkill"]
+    }
+    response = client.post('/warrior', data=json.dumps(data), content_type='application/json')
     assert response.status_code == 400
+    response_data = response.json
+    assert 'message' in response_data
+    assert response_data['message'] == 'Bad Request - Invalid fight skill'
