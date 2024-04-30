@@ -1,9 +1,9 @@
-from flask import Flask, request, jsonify, Response
+from quart import Quart, request, jsonify, Response
 from datetime import datetime
 import mysql.connector
 import uuid, json
 
-app = Flask(__name__)
+app = Quart(__name__)
 
 
 def connect_to_db():
@@ -17,7 +17,7 @@ def connect_to_db():
 
 
 @app.route("/")
-def default():
+async def default():
     welcome_msg = "Welcome to API Under Stress!"
     return welcome_msg
 
@@ -32,9 +32,9 @@ def validate_dob(dob):
 
 # POST request that saves a new warrior entry into the database
 @app.route("/warrior", methods=["POST"])
-def create_warrior():
+async def create_warrior():
     db = connect_to_db()
-    data = request.json
+    data = await request.json
 
     # Check name, dob, and fight_skills keys are in the request body
     if "name" not in data or "dob" not in data or "fight_skills" not in data:
@@ -98,9 +98,9 @@ def create_warrior():
         cursor.close()
 
 
-# GET request that searches the database for entries that matches the given id
+# # GET request that searches the database for entries that matches the given id
 @app.route("/warrior/<id>", methods=["GET"])
-def get_warrior(id):
+async def get_warrior(id):
     db = connect_to_db()
     cursor = db.cursor()
     sql = "SELECT * FROM warriors WHERE id = %s"
@@ -131,7 +131,7 @@ def search_term_none():
 
 # GET request that searches for entries that matches the given search term
 @app.route("/warrior", methods=["GET"])
-def search_warriors():
+async def search_warriors():
     db = connect_to_db()
     search_term = get_search_term()
     if not search_term:
@@ -154,7 +154,7 @@ def search_warriors():
 
 # GET request that returns the number of warriors
 @app.route("/counting-warriors", methods=["GET"])
-def count_warriors():
+async def count_warriors():
     db = connect_to_db()
     cursor = db.cursor()
     sql = "SELECT COUNT(*) FROM warriors"
