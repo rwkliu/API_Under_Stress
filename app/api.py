@@ -1,3 +1,4 @@
+import quart_flask_patch
 from quart import Quart, request, jsonify, Response
 from datetime import datetime
 import mysql.connector
