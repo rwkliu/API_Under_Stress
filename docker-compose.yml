@@ -31,14 +31,6 @@ services:
     depends_on:
       - app_1
 
-  redis:
-    image: redis:latest
-    restart: always
-    ports:
-      - "6379:6379"
-    networks:
-      - loadbalancing
-
 networks:
   loadbalancing:
 
