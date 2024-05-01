@@ -33,7 +33,7 @@ def validate_dob(dob):
 # POST request that saves a new warrior entry into the database
 @app.route("/warrior", methods=["POST"])
 async def create_warrior():
-    cnx = await connect_to_db()
+    db = await connect_to_db()
     data = request.json
 
     # Check name, dob, and fight_skills keys are in the request body
@@ -76,13 +76,13 @@ async def create_warrior():
         return jsonify({"message": "Bad Request - fight skills length exceeded"}), 400
 
     fight_skills_list_string = ",".join(fight_skills)
-    cursor = await cnx.cursor()
+    cursor = await db.cursor()
     sql = "INSERT INTO warriors (id, name, dob, fight_skills) VALUES (%s, %s, %s, %s)"
     values = (id, name, dob, fight_skills_list_string)
 
     try:
         await cursor.execute(sql, values)
-        await cnx.commit()
+        await db.commit()
         resp = Response(
             response=json.dumps({"message": "Warrior created successfully"}),
             status=201,
@@ -92,10 +92,11 @@ async def create_warrior():
         return resp
     except Exception as e:
         print("Error creating warrior:", e)
-        await cnx.rollback()
+        await db.rollback()
         return jsonify({"message": "Internal Server Error"}), 500
     finally:
         await cursor.close()
+        await db.close()
 
 
 # GET request that searches the database for entries that matches the given id
@@ -118,6 +119,7 @@ async def get_warrior(id):
         return jsonify({"message": "Internal Server Error"}), 500
     finally:
         await cursor.close()
+        await db.close()
 
 
 def get_search_term():
@@ -150,6 +152,7 @@ async def search_warriors():
         return jsonify({"message": "Internal Server Error"}), 500
     finally:
         await cursor.close()
+        await db.close()
 
 
 # GET request that returns the number of warriors
@@ -168,6 +171,7 @@ async def count_warriors():
         return jsonify({"message": "Internal Server Error"}), 500
     finally:
         await cursor.close()
+        await db.close()
 
 
 if __name__ == "__main__":
