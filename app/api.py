@@ -1,5 +1,6 @@
 from flask import Flask, request, jsonify, Response
 from flask_caching import Cache
+from datetime import datetime
 import mysql.connector
 import uuid, json
 
@@ -35,6 +36,14 @@ def default():
     return welcome_msg
 
 
+def validate_dob(dob):
+    format = "%Y-%m-%d"
+    try:
+        return bool(datetime.strptime(dob, format))
+    except ValueError:
+        return False
+
+
 # POST request that saves a new warrior entry into the database
 @app.route("/warrior", methods=["POST"])
 def create_warrior():
@@ -50,6 +59,9 @@ def create_warrior():
     dob = data.get("dob")
     fight_skills = data.get("fight_skills")
 
+    # Check valid dob format
+    if validate_dob(dob) == False:
+        return jsonify({"message": "Bad Request - Invalid date format"}), 400
     # Check the name is more than 100 characters
     if len(name) > 100:
         return jsonify({"message": "Bad Request - name is too long"}), 400
@@ -57,15 +69,18 @@ def create_warrior():
     if fight_skills == None:
         return jsonify({"message": "Bad Request - fight_skills cannot be empty"}), 400
     # Check for more than 20 fight skills
-    if len(fight_skills) > 20:
-        return (
-            jsonify(
-                {
-                    "message": "Bad Request - fight_skills cannot cannot have more than 20 skills"
-                }
-            ),
-            400,
-        )
+    try:
+        if len(fight_skills) > 20:
+            return (
+                jsonify(
+                    {
+                        "message": "Bad Request - fight_skills cannot cannot have more than 20 skills"
+                    }
+                ),
+                400,
+            )
+    except Exception:
+        return jsonify({"message": "fight skill is not a string"}), 400
     # Check for skills that are more than 250 characters
     if any(len(fight_skill) > 250 for fight_skill in fight_skills):
         return jsonify({"message": "Bad Request - a fight skill name is too long"}), 400
