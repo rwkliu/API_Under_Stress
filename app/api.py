@@ -1,9 +1,9 @@
-from flask import Flask, request, jsonify, Response
+from quart import Quart, request, jsonify, Response
 from datetime import datetime
 from mysql.connector.aio import connect
 import uuid, json
 
-app = Flask(__name__)
+app = Quart(__name__)
 
 
 def connect_to_db():
@@ -34,7 +34,7 @@ def validate_dob(dob):
 @app.route("/warrior", methods=["POST"])
 async def create_warrior():
     db = await connect_to_db()
-    data = request.json
+    data = await request.json
 
     # Check name, dob, and fight_skills keys are in the request body
     if "name" not in data or "dob" not in data or "fight_skills" not in data:
