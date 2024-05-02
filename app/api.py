@@ -2,6 +2,7 @@ from flask import Flask, request, jsonify, Response
 from flask_caching import Cache
 import mysql.connector
 import uuid, json
+from validators import validate_fight_skills
 
 app = Flask(__name__)
 
@@ -28,32 +29,12 @@ def connect_to_db():
     )
     return db
 
-def is_valid_skill(skill):
-    valid_skills = ["BJJ", "Karate", "Judo", "KungFu", "Capoeira", "Boxing", "Taekwondo", "Aikido", "KravMaga",
-                    "MuayThai", "KickBoxing", "Pankration", "Wrestling", "Sambo", "Savate", "Sumo", "Kendo",
-                    "Hapkido", "LutaLivre", "WingChu", "Ninjutsu", "Fencing", "ArmWrestling", "SuckerPunch",
-                    "44Magnum"]
-    return skill in valid_skills
-
-
-def validate_fight_skills(fight_skills):
-    if not all(is_valid_skill(skill) for skill in fight_skills):
-        return "Bad Request - Invalid fight skill"
-    if not fight_skills:
-        return "Bad Request - Fight skills cannot be empty"
-    if len(fight_skills) > 20:
-        return "Bad Request - Fight skills cannot have more than 20 skills"
-    if any(len(skill) > 250 for skill in fight_skills):
-        return "Bad Request - A fight skill name is too long"
-    return None
-
 @app.route("/")
 def default():
     welcome_msg = "Welcome to API Under Stress!"
     return welcome_msg
 
 
-# POST request that saves a new warrior entry into the database
 @app.route("/warrior", methods=["POST"])
 def create_warrior():
     db = connect_to_db()
@@ -68,8 +49,7 @@ def create_warrior():
     if validation_error:
         return jsonify({"message": validation_error}), 400 
 
-    
-    # Check the name is more than 100 characters
+    # Check the name is not too long
     if len(data['name']) > 100:
         return jsonify({"message": "Bad Request - name is too long"}), 400
     
@@ -79,25 +59,12 @@ def create_warrior():
     fight_skills = data.get("fight_skills")
 
     # Check for empty skills
-    if fight_skills == None:
+    if fight_skills is None:
         return jsonify({"message": "Bad Request - fight_skills cannot be empty"}), 400
+    
     # Check for more than 20 fight skills
     if len(fight_skills) > 20:
-        return (
-            jsonify(
-                {
-                    "message": "Bad Request - fight_skills cannot cannot have more than 20 skills"
-                }
-            ),
-            400,
-        )
-    # Check for skills that are more than 250 characters
-    if any(len(fight_skill) > 250 for fight_skill in fight_skills):
-        return jsonify({"message": "Bad Request - a fight skill name is too long"}), 400
-    # Check for total sum of the fight skill character lengths doesn't exceed max length
-    max_skills_length = 5019
-    if sum([len(fight_skill) for fight_skill in fight_skills]) > max_skills_length:
-        return jsonify({"message": "Bad Request - fight skills length exceeded"}), 400
+        return jsonify({"message": "Bad Request - fight_skills cannot have more than 20 skills"}), 400
 
     fight_skills_list_string = ",".join(fight_skills)
     cursor = db.cursor()
@@ -107,19 +74,32 @@ def create_warrior():
     try:
         cursor.execute(sql, values)
         db.commit()
-        resp = Response(
-            response=json.dumps({"message": "Warrior created successfully"}),
-            status=201,
-        )
-        resp.headers["location"] = "/warrior/" + id
 
+        # Fetch the inserted record
+        cursor.execute("SELECT * FROM warriors WHERE id = %s", (id,))
+        inserted_warrior = cursor.fetchone()
+
+        # Construct the response
+        response_data = {
+            "id": inserted_warrior[0],
+            "name": inserted_warrior[1],
+            "dob": inserted_warrior[2],
+            "fight_skills": inserted_warrior[3].split(',')
+        }
+
+        resp = jsonify(response_data)
+        resp.status_code = 201
+        resp.headers["location"] = f"/warrior/{id}"
         return resp
+
     except Exception as e:
         print("Error creating warrior:", e)
         db.rollback()
         return jsonify({"message": "Internal Server Error"}), 500
     finally:
         cursor.close()
+
+
 
 
 # GET request that searches the database for entries that matches the given id

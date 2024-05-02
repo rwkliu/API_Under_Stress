@@ -3,6 +3,7 @@ EXPOSE 5000
 WORKDIR /app
 COPY requirements.txt /app
 RUN pip install -r requirements.txt
+COPY validators.py /app
 COPY api.py /app
 COPY wsgi.py /app
 COPY test_api.py /app

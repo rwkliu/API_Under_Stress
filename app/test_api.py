@@ -1,7 +1,8 @@
 import pytest
 from api import app, connect_to_db
 import json
-import uuid 
+import uuid
+from validators import validate_fight_skills
 
 @pytest.fixture
 def client():
@@ -23,20 +24,21 @@ def test_create_warrior(client):
     data = {
         "name": "Robin Ranjit",
         "dob": "1985-02-14",
-        "fight_skills": ["kungfu", "taekwondo"]
+        "fight_skills": ["KungFu", "Taekwondo"]
     }
-    response = client.post('/warrior', data=json.dumps(data), content_type='application/json')
+    headers = {'Content-Type': 'application/json'}  # Specify content type in headers
+
+    response = client.post('/warrior', json=data, headers=headers)
     assert response.status_code == 201
 
     response_data = response.json
+    print("Debug - response_data: ", response_data)
+
+    assert response_data is not None
     print("Debug-Response data post request:", response_data)
 
     assert 'id' in response_data
     print("Debug-response_data_uuid: ", response_data['id'])
-   
-    assert 'message' in response_data
-    assert response_data['message'] == 'Warrior created successfully'
-
 
 
 def test_get_warrior(client):
@@ -44,7 +46,7 @@ def test_get_warrior(client):
     data = {
         "name": "Umesh Raj",
         "dob": "1985-02-14",
-        "fight_skills": ["kungfu", "taekwondo"]
+        "fight_skills": ["KungFu", "Taekwondo"]
     }
     response = client.post('/warrior', data=json.dumps(data), content_type='application/json')
     response_data = response.json 
@@ -87,7 +89,7 @@ def test_count_warriors(client):
 def test_invalid_input_data(client):
     data = {
         "dob": "0000-00-00",
-        "fight_skills": ["kungfu", "taekwondo"]
+        "fight_skills": ["KungFu", "Taekwondo"]
     }
     response = client.post('/warrior', data=json.dumps(data), content_type='application/json')
     assert response.status_code == 400
