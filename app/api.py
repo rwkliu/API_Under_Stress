@@ -82,12 +82,7 @@ def create_warrior():
         cursor.execute(sql, values)
         db.commit()
 
-        resp = Response(
-            response=json.dumps({"message": "Warrior created successfully"}),
-            status=201,
-        )
-        resp.headers["location"] = "/warrior/" + id
-        return resp
+        return {}, 201, {"Location": f"/warrior/{id}"}
 
     except Exception as e:
         print("Error creating warrior:", e)
