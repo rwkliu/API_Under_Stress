@@ -82,26 +82,7 @@ def create_warrior():
     # Check for more than 20 fight skills
     if len(fight_skills) > 20:
         return jsonify({"message": "Bad Request - fight_skills cannot have more than 20 skills"}), 400
-    try:
-        if len(fight_skills) > 20:
-            return (
-                jsonify(
-                    {
-                        "message": "Bad Request - fight_skills cannot cannot have more than 20 skills"
-                    }
-                ),
-                400,
-            )
-    except Exception:
-        return jsonify({"message": "fight skill is not a string"}), 400
-    # Check for skills that are more than 250 characters
-    if any(len(fight_skill) > 250 for fight_skill in fight_skills):
-        return jsonify({"message": "Bad Request - a fight skill name is too long"}), 400
-    # Check for total sum of the fight skill character lengths doesn't exceed max length
-    max_skills_length = 5019
-    if sum([len(fight_skill) for fight_skill in fight_skills]) > max_skills_length:
-        return jsonify({"message": "Bad Request - fight skills length exceeded"}), 400
-
+        
     fight_skills_list_string = ",".join(fight_skills)
     cursor = db.cursor()
     sql = "INSERT INTO warriors (id, name, dob, fight_skills) VALUES (%s, %s, %s, %s)"
