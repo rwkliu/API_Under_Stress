@@ -1,8 +1,8 @@
-from flask import Flask, request, jsonify, Response
+from flask import Flask, request, jsonify
 from flask_caching import Cache
 from datetime import datetime
 import mysql.connector
-import uuid, json
+import uuid
 from validators import validate_fight_skills
 
 app = Flask(__name__)
