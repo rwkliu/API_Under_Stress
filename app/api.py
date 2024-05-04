@@ -92,21 +92,11 @@ def create_warrior():
         cursor.execute(sql, values)
         db.commit()
 
-        # Fetch the inserted record
-        cursor.execute("SELECT * FROM warriors WHERE id = %s", (id,))
-        inserted_warrior = cursor.fetchone()
-
-        # Construct the response
-        response_data = {
-            "id": inserted_warrior[0],
-            "name": inserted_warrior[1],
-            "dob": inserted_warrior[2],
-            "fight_skills": inserted_warrior[3].split(',')
-        }
-
-        resp = jsonify(response_data)
-        resp.status_code = 201
-        resp.headers["location"] = f"/warrior/{id}"
+        resp = Response(
+            response=json.dumps({"message": "Warrior created successfully"}),
+            status=201,
+        )
+        resp.headers["location"] = "/warrior/" + id
         return resp
 
     except Exception as e:

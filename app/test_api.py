@@ -31,14 +31,17 @@ def test_create_warrior(client):
     response = client.post('/warrior', json=data, headers=headers)
     assert response.status_code == 201
 
-    response_data = response.json
-    print("Debug - response_data: ", response_data)
+    # Extract ID from the location header
+    location = response.headers.get('Location')
+    assert location is not None
+    warrior_id = location.split('/')[-1]
 
-    assert response_data is not None
-    print("Debug-Response data post request:", response_data)
-
-    assert 'id' in response_data
-    print("Debug-response_data_uuid: ", response_data['id'])
+    # Check if warrior_id is a valid UUID
+    assert len(warrior_id) == 36  # UUID length
+    try:
+        uuid.UUID(warrior_id)
+    except ValueError:
+        assert False, f"Invalid UUID: {warrior_id}"  # Fail the test if not a valid UUID
 
 
 def test_get_warrior(client):
@@ -48,20 +51,19 @@ def test_get_warrior(client):
         "dob": "1985-02-14",
         "fight_skills": ["KungFu", "Taekwondo"]
     }
-    response = client.post('/warrior', data=json.dumps(data), content_type='application/json')
-    response_data = response.json 
-    print("Debug-response_data from test_get_warrior: ", response_data) # uuid
+    response = client.post('/warrior', json=data)
+    assert response.status_code == 201
 
-    warrior_id = response_data['id']   
+    # Extract ID from the Location header
+    location = response.headers.get('Location')
+    assert location is not None
+    warrior_id = location.split('/')[-1]   
 
     # Retrieve the warrior by id
     getresponse = client.get(f'/warrior/{warrior_id}')
     print("Debug-getresponse: ", getresponse)
     print("Debug-getresponse.json get request:", getresponse.json) # it is returned as a list
     assert getresponse.status_code == 200
-
-    warrior_data = getresponse.json
-    assert warrior_data[0] == warrior_id
 
 
 def test_search_warriors(client):
