@@ -1,8 +1,9 @@
-from flask import Flask, request, jsonify, Response
+from flask import Flask, request, jsonify
 from flask_caching import Cache
 from datetime import datetime
 import mysql.connector
-import uuid, json
+import uuid
+from validators import validate_fight_skills
 
 app = Flask(__name__)
 
@@ -54,40 +55,23 @@ def create_warrior():
     if "name" not in data or "dob" not in data or "fight_skills" not in data:
         return jsonify({"message": "Bad Request - Missing required fields"}), 400
 
+    # Check valid dob format
+    if validate_dob(data["dob"]) == False:
+        return jsonify({"message": "Bad Request - Invalid date format"}), 400
+
+    # Check the name is more than 100 characters
+    if len(data["name"]) > 100:
+        return jsonify({"message": "Bad Request - name is too long"}), 400
+
+    # Validate fight_skills
+    validation_error = validate_fight_skills(data["fight_skills"])
+    if validation_error:
+        return jsonify({"message": validation_error}), 400
+
     id = str(uuid.uuid4())
     name = data.get("name")
     dob = data.get("dob")
     fight_skills = data.get("fight_skills")
-
-    # Check valid dob format
-    if validate_dob(dob) == False:
-        return jsonify({"message": "Bad Request - Invalid date format"}), 400
-    # Check the name is more than 100 characters
-    if len(name) > 100:
-        return jsonify({"message": "Bad Request - name is too long"}), 400
-    # Check for empty skills
-    if fight_skills == None:
-        return jsonify({"message": "Bad Request - fight_skills cannot be empty"}), 400
-    # Check for more than 20 fight skills
-    try:
-        if len(fight_skills) > 20:
-            return (
-                jsonify(
-                    {
-                        "message": "Bad Request - fight_skills cannot cannot have more than 20 skills"
-                    }
-                ),
-                400,
-            )
-    except Exception:
-        return jsonify({"message": "fight skill is not a string"}), 400
-    # Check for skills that are more than 250 characters
-    if any(len(fight_skill) > 250 for fight_skill in fight_skills):
-        return jsonify({"message": "Bad Request - a fight skill name is too long"}), 400
-    # Check for total sum of the fight skill character lengths doesn't exceed max length
-    max_skills_length = 5019
-    if sum([len(fight_skill) for fight_skill in fight_skills]) > max_skills_length:
-        return jsonify({"message": "Bad Request - fight skills length exceeded"}), 400
 
     fight_skills_list_string = ",".join(fight_skills)
     cursor = db.cursor()
@@ -97,13 +81,9 @@ def create_warrior():
     try:
         cursor.execute(sql, values)
         db.commit()
-        resp = Response(
-            response=json.dumps({"message": "Warrior created successfully"}),
-            status=201,
-        )
-        resp.headers["location"] = "/warrior/" + id
 
-        return resp
+        return {}, 201, {"Location": f"/warrior/{id}"}
+
     except Exception as e:
         print("Error creating warrior:", e)
         db.rollback()

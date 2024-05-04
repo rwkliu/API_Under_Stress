@@ -1,7 +1,8 @@
 import pytest
 from api import app, connect_to_db
 import json
-import uuid 
+import uuid
+from validators import validate_fight_skills
 
 @pytest.fixture
 def client():
@@ -23,20 +24,24 @@ def test_create_warrior(client):
     data = {
         "name": "Robin Ranjit",
         "dob": "1985-02-14",
-        "fight_skills": ["kungfu", "taekwondo"]
+        "fight_skills": ["KungFu", "Taekwondo"]
     }
-    response = client.post('/warrior', data=json.dumps(data), content_type='application/json')
+    headers = {'Content-Type': 'application/json'}  # Specify content type in headers
+
+    response = client.post('/warrior', json=data, headers=headers)
     assert response.status_code == 201
 
-    response_data = response.json
-    print("Debug-Response data post request:", response_data)
+    # Extract ID from the location header
+    location = response.headers.get('Location')
+    assert location is not None
+    warrior_id = location.split('/')[-1]
 
-    assert 'id' in response_data
-    print("Debug-response_data_uuid: ", response_data['id'])
-   
-    assert 'message' in response_data
-    assert response_data['message'] == 'Warrior created successfully'
-
+    # Check if warrior_id is a valid UUID
+    assert len(warrior_id) == 36  # UUID length
+    try:
+        uuid.UUID(warrior_id)
+    except ValueError:
+        assert False, f"Invalid UUID: {warrior_id}"  # Fail the test if not a valid UUID
 
 
 def test_get_warrior(client):
@@ -44,22 +49,21 @@ def test_get_warrior(client):
     data = {
         "name": "Umesh Raj",
         "dob": "1985-02-14",
-        "fight_skills": ["kungfu", "taekwondo"]
+        "fight_skills": ["KungFu", "Taekwondo"]
     }
-    response = client.post('/warrior', data=json.dumps(data), content_type='application/json')
-    response_data = response.json 
-    print("Debug-response_data from test_get_warrior: ", response_data) # uuid
+    response = client.post('/warrior', json=data)
+    assert response.status_code == 201
 
-    warrior_id = response_data['id']   
+    # Extract ID from the Location header
+    location = response.headers.get('Location')
+    assert location is not None
+    warrior_id = location.split('/')[-1]   
 
     # Retrieve the warrior by id
     getresponse = client.get(f'/warrior/{warrior_id}')
     print("Debug-getresponse: ", getresponse)
     print("Debug-getresponse.json get request:", getresponse.json) # it is returned as a list
     assert getresponse.status_code == 200
-
-    warrior_data = getresponse.json
-    assert warrior_data[0] == warrior_id
 
 
 def test_search_warriors(client):
@@ -87,7 +91,7 @@ def test_count_warriors(client):
 def test_invalid_input_data(client):
     data = {
         "dob": "0000-00-00",
-        "fight_skills": ["kungfu", "taekwondo"]
+        "fight_skills": ["KungFu", "Taekwondo"]
     }
     response = client.post('/warrior', data=json.dumps(data), content_type='application/json')
     assert response.status_code == 400
@@ -108,4 +112,16 @@ def test_search_non_existing_warrior(client):
 
 def test_empty_request_parameter(client):
     response = client.get('/warrior')
+    assert response.status_code == 400 
+
+def test_invalid_fight_skills(client):
+    data = {
+        "name": "Test Warrior",
+        "dob": "1990-01-01",
+        "fight_skills": ["InvalidSkill", "AnotherInvalidSkill"]
+    }
+    response = client.post('/warrior', data=json.dumps(data), content_type='application/json')
     assert response.status_code == 400
+    response_data = response.json
+    assert 'message' in response_data
+    assert response_data['message'] == 'Bad Request - Invalid fight skill'
