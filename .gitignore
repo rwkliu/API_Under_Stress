@@ -7,3 +7,4 @@ __pycache__
 .idea/*
 gatling_testing_v1/*
 dump.rdb
+bruno_test.sh
