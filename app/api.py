@@ -1,9 +1,12 @@
 from flask import Flask, request, jsonify
 from flask_caching import Cache
 from datetime import datetime
+from gevent import monkey
 import mysql.connector
 import uuid
 from validators import validate_fight_skills
+
+monkey.patch_all()
 
 app = Flask(__name__)
 
