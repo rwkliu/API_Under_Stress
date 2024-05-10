@@ -30,6 +30,8 @@ services:
       - loadbalancing
     depends_on:
       - app_1
+    healthcheck:
+      test: curl --fail http://localhost:9999/ || exit 1
 
   redis:
     image: redis:latest
