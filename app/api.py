@@ -138,8 +138,8 @@ def search_warriors():
     db = connect_to_db()
 
     cursor = db.cursor()
-    sql = "SELECT * FROM warriors WHERE name LIKE %s LIMIT 50"
-    val = ("%" + search_term + "%",)
+    sql = "SELECT * FROM warriors WHERE name = %s LIMIT 50"
+    val = (search_term,)
 
     try:
         cursor.execute(sql, val)
