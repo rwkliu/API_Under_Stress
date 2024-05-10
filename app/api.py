@@ -51,7 +51,6 @@ def validate_dob(dob):
 # POST request that saves a new warrior entry into the database
 @app.route("/warrior", methods=["POST"])
 def create_warrior():
-    db = connect_to_db()
     data = request.json
 
     # Check name, dob, and fight_skills keys are in the request body
@@ -77,11 +76,12 @@ def create_warrior():
     fight_skills = data.get("fight_skills")
 
     fight_skills_list_string = ",".join(fight_skills)
-    cursor = db.cursor()
     sql = "INSERT INTO warriors (id, name, dob, fight_skills) VALUES (%s, %s, %s, %s)"
     values = (id, name, dob, fight_skills_list_string)
 
     try:
+        db = connect_to_db()
+        cursor = db.cursor()
         cursor.execute(sql, values)
         db.commit()
         cache.set(f"view//warrior/{id}", {}, timeout=60)
