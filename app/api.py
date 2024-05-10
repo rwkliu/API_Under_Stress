@@ -84,6 +84,7 @@ def create_warrior():
     try:
         cursor.execute(sql, values)
         db.commit()
+        cache.set(f"view//warrior/{id}", {}, timeout=60)
 
         return {}, 201, {"Location": f"/warrior/{id}"}
 
