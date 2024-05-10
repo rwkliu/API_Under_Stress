@@ -132,10 +132,10 @@ def search_term_none():
 @app.route("/warrior", methods=["GET"])
 @cache.cached(timeout=60, make_cache_key=get_search_term, unless=search_term_none)
 def search_warriors():
-    db = connect_to_db()
     search_term = get_search_term()
     if not search_term:
         return jsonify({"message": "Bad Request"}), 400
+    db = connect_to_db()
 
     cursor = db.cursor()
     sql = "SELECT * FROM warriors WHERE name LIKE %s LIMIT 50"
