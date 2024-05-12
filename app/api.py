@@ -1,9 +1,12 @@
 from flask import Flask, request, jsonify
 from flask_caching import Cache
 from datetime import datetime
+from gevent import monkey
 import mysql.connector
 import uuid
 from validators import validate_fight_skills
+
+monkey.patch_all()
 
 app = Flask(__name__)
 
@@ -48,7 +51,6 @@ def validate_dob(dob):
 # POST request that saves a new warrior entry into the database
 @app.route("/warrior", methods=["POST"])
 def create_warrior():
-    db = connect_to_db()
     data = request.json
 
     # Check name, dob, and fight_skills keys are in the request body
@@ -74,13 +76,15 @@ def create_warrior():
     fight_skills = data.get("fight_skills")
 
     fight_skills_list_string = ",".join(fight_skills)
-    cursor = db.cursor()
     sql = "INSERT INTO warriors (id, name, dob, fight_skills) VALUES (%s, %s, %s, %s)"
     values = (id, name, dob, fight_skills_list_string)
 
     try:
+        db = connect_to_db()
+        cursor = db.cursor()
         cursor.execute(sql, values)
         db.commit()
+        cache.set(f"view//warrior/{id}", {}, timeout=60)
 
         return {}, 201, {"Location": f"/warrior/{id}"}
 
@@ -128,14 +132,14 @@ def search_term_none():
 @app.route("/warrior", methods=["GET"])
 @cache.cached(timeout=60, make_cache_key=get_search_term, unless=search_term_none)
 def search_warriors():
-    db = connect_to_db()
     search_term = get_search_term()
     if not search_term:
         return jsonify({"message": "Bad Request"}), 400
+    db = connect_to_db()
 
     cursor = db.cursor()
-    sql = "SELECT * FROM warriors WHERE name LIKE %s LIMIT 50"
-    val = ("%" + search_term + "%",)
+    sql = "SELECT * FROM warriors WHERE name = %s LIMIT 50"
+    val = (search_term,)
 
     try:
         cursor.execute(sql, val)
